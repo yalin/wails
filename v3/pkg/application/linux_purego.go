@@ -614,6 +614,14 @@ func getScreens(app pointer) ([]*Screen, error) {
 }
 
 // widgets
+func widgetSetSensitive(widget pointer, enabled bool) {
+	value := 0
+	if enabled {
+		value = 1
+	}
+	gtkWidgetSetSensitive(widget, value)
+}
+
 func widgetSetVisible(widget pointer, hidden bool) {
 	if hidden {
 		gtkWidgetHide(widget)
@@ -665,6 +673,12 @@ func windowFullscreen(window pointer) {
 	gtkWindowFullScreen(window)
 }
 
+func windowGetAbsolutePosition(window pointer) (int, int) {
+	var x, y int
+	gtkWindowGetPosition(window, &x, &y)
+	return x, y
+}
+
 func windowGetCurrentMonitor(window pointer) pointer {
 	// Get the monitor that the window is currently on
 	display := gtkWidgetGetDisplay(window)
@@ -691,18 +705,27 @@ func windowGetCurrentMonitorGeometry(window pointer) (x int, y int, width int, h
 	return int(result.x), int(result.y), int(result.width), int(result.height), gdkMonitorGetScaleFactor(monitor)
 }
 
+func windowGetRelativePosition(window pointer) (int, int) {
+	x, y := windowGetAbsolutePosition(window)
+
+	// The position must be relative to the screen it is on
+	// We need to get the screen it is on
+	screen := gtkWidgetGetScreen(window)
+	monitor := C.gdk_screen_get_monitor_at_window(screen, (*C.GdkWindow)(window))
+	geometry := C.GdkRectangle{}
+	C.gdk_screen_get_monitor_geometry(screen, monitor, &geometry)
+	x = x - int(geometry.x)
+	y = y - int(geometry.y)
+
+	// TODO: Scale based on DPI
+	return x, y
+}
+
 func windowGetSize(window pointer) (int, int) {
 	// TODO: dispatchOnMainThread?
 	var width, height int
 	gtkWindowGetSize(window, &width, &height)
 	return width, height
-}
-
-func windowGetPosition(window pointer) (int, int) {
-	// TODO: dispatchOnMainThread?
-	var x, y int
-	gtkWindowGetPosition(window, &x, &y)
-	return x, y
 }
 
 func windowHide(window pointer) {

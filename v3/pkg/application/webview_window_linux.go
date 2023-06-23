@@ -165,7 +165,7 @@ func (w *linuxWebviewWindow) fullscreen() {
 
 func (w *linuxWebviewWindow) setEnabled(enabled bool) {
 	globalApplication.dispatchOnMainThread(func() {
-		C.gtk_widget_set_sensitive((*C.GtkWidget)(w.window), C.gboolean(enabled))
+		widgetSetSensitive(w.window, enabled)
 	})
 }
 
@@ -379,6 +379,18 @@ func (w *linuxWebviewWindow) height() int {
 	return height
 }
 
+func (w *linuxWebviewWindow) absolutePosition() (int, int) {
+	var x, y int
+	var wg sync.WaitGroup
+	wg.Add(1)
+	globalApplication.dispatchOnMainThread(func() {
+		x, y = windowGetAbsolutePosition(w.window)
+		wg.Done()
+	})
+	wg.Wait()
+	return x, y
+}
+
 func (w *linuxWebviewWindow) run() {
 	for eventId := range w.parent.eventListeners {
 		w.on(eventId)
@@ -468,12 +480,12 @@ func (w *linuxWebviewWindow) setBackgroundColour(colour RGBA) {
 	windowSetBackgroundColour(w.webview, colour)
 }
 
-func (w *linuxWebviewWindow) position() (int, int) {
+func (w *linuxWebviewWindow) relativePosition() (int, int) {
 	var x, y int
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go globalApplication.dispatchOnMainThread(func() {
-		x, y = windowGetPosition(w.window)
+		x, y = windowGetRelativePosition(w.window)
 		wg.Done()
 	})
 	wg.Wait()

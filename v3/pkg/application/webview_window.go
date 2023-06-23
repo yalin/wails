@@ -67,6 +67,8 @@ type (
 		startResize(border string) error
 		print() error
 		setEnabled(enabled bool)
+		absolutePosition() (int, int)
+		setAbsolutePosition(x int, y int)
 	}
 )
 
@@ -552,6 +554,18 @@ func (w *WebviewWindow) RelativePosition() (int, int) {
 	return x, y
 }
 
+// AbsolutePosition returns the absolute position of the window to the screen
+func (w *WebviewWindow) AbsolutePosition() (int, int) {
+	if w.impl == nil {
+		return 0, 0
+	}
+	var x, y int
+	invokeSync(func() {
+		x, y = w.impl.absolutePosition()
+	})
+	return x, y
+}
+
 func (w *WebviewWindow) Destroy() {
 	if w.impl == nil {
 		return
@@ -896,5 +910,15 @@ func (w *WebviewWindow) SetEnabled(enabled bool) {
 	}
 	invokeSync(func() {
 		w.impl.setEnabled(enabled)
+	})
+}
+
+func (w *WebviewWindow) SetAbsolutePosition(x int, y int) {
+	// set absolute position
+	if w.impl == nil {
+		return
+	}
+	invokeSync(func() {
+		w.impl.setAbsolutePosition(x, y)
 	})
 }
