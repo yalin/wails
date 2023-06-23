@@ -66,6 +66,7 @@ type (
 		startDrag() error
 		startResize(border string) error
 		print() error
+		setEnabled(enabled bool)
 	}
 )
 
@@ -887,4 +888,13 @@ func (w *WebviewWindow) Print() error {
 		return nil
 	}
 	return invokeSyncWithError(w.impl.print)
+}
+
+func (w *WebviewWindow) SetEnabled(enabled bool) {
+	if w.impl == nil {
+		return
+	}
+	invokeSync(func() {
+		w.impl.setEnabled(enabled)
+	})
 }
