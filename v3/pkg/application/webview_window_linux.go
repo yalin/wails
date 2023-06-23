@@ -379,6 +379,11 @@ func (w *linuxWebviewWindow) height() int {
 	return height
 }
 
+func (w *linuxWebviewWindow) setAbsolutePosition(x int, y int) {
+	// Set the window's absolute position
+	windowMove(w.window, x, y)
+}
+
 func (w *linuxWebviewWindow) absolutePosition() (int, int) {
 	var x, y int
 	var wg sync.WaitGroup
