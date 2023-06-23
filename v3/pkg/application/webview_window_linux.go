@@ -159,7 +159,7 @@ func (w *linuxWebviewWindow) fullscreen() {
 		w.setMinMaxSize(0, 0, width*scale, height*scale)
 		w.setSize(width*scale, height*scale)
 		windowFullscreen(w.window)
-		w.setPosition(0, 0)
+		w.setRelativePosition(0, 0)
 	})
 }
 
@@ -362,7 +362,7 @@ func (w *linuxWebviewWindow) size() (int, int) {
 	return windowGetSize(w.window)
 }
 
-func (w *linuxWebviewWindow) setPosition(x, y int) {
+func (w *linuxWebviewWindow) setRelativePosition(x, y int) {
 	mx, my, _, _, _ := windowGetCurrentMonitorGeometry(w.window)
 	globalApplication.dispatchOnMainThread(func() {
 		windowMove(w.window, x+mx, y+my)
@@ -415,7 +415,7 @@ func (w *linuxWebviewWindow) run() {
 		w.setFrameless(w.parent.options.Frameless)
 
 		if w.parent.options.X != 0 || w.parent.options.Y != 0 {
-			w.setPosition(w.parent.options.X, w.parent.options.Y)
+			w.setRelativePosition(w.parent.options.X, w.parent.options.Y)
 		} else {
 			fmt.Println("attempting to set in the center")
 			w.center()
@@ -449,7 +449,7 @@ func (w *linuxWebviewWindow) run() {
 		if !w.parent.options.Hidden {
 			w.show()
 			if w.parent.options.X != 0 || w.parent.options.Y != 0 {
-				w.setPosition(w.parent.options.X, w.parent.options.Y)
+				w.setRelativePosition(w.parent.options.X, w.parent.options.Y)
 			} else {
 				w.center() // needs to be queued until after GTK starts up!
 			}
